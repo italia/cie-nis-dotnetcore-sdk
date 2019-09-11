@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="PCSC" Version="4.2.0" />
+    <PackageReference Include="PCSC.Iso7816" Version="4.2.0" />
+  </ItemGroup>
+
+</Project>

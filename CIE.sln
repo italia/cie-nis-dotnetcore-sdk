@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29020.237
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CIE.NIS.SDK", "CIE.NIS.SDK\CIE.NIS.SDK.csproj", "{F577ED7B-0341-4D5A-AAAA-5F103109DE1D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{7B9D62B0-13A7-4570-9B45-A23FAF14E08B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F577ED7B-0341-4D5A-AAAA-5F103109DE1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F577ED7B-0341-4D5A-AAAA-5F103109DE1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F577ED7B-0341-4D5A-AAAA-5F103109DE1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F577ED7B-0341-4D5A-AAAA-5F103109DE1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B9D62B0-13A7-4570-9B45-A23FAF14E08B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B9D62B0-13A7-4570-9B45-A23FAF14E08B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B9D62B0-13A7-4570-9B45-A23FAF14E08B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B9D62B0-13A7-4570-9B45-A23FAF14E08B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2E8250B9-8A84-4825-B845-6E3B23084E9C}
+	EndGlobalSection
+EndGlobal
