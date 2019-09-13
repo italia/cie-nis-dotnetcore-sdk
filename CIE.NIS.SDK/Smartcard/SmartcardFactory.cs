@@ -5,15 +5,15 @@ namespace CIE.NIS.SDK.Smartcard
     using System.Text;
     using PCSC;
     using PCSC.Exceptions;
-    using PCSC.Utils;
     using PCSC.Monitoring;    
     using Extensions;    
 
     public class SmartcardFactory : IDisposable
     {
         private readonly SCardScope _scope;        
-        public delegate void SmartcardReadEventHandler(string readerName);
-        public event SmartcardReadEventHandler OnSmartcardRead = null;
+        public delegate void SmartcardEventHandler(string readerName);        
+        public event SmartcardEventHandler OnSmartcardInserted = null;
+        public event SmartcardEventHandler OnSmartcardRemoved = null;
         private readonly IContextFactory contextFactory = ContextFactory.Instance;
         private ISCardContext cardFactory;
         private SCardMonitor cardMonitor;
@@ -40,12 +40,13 @@ namespace CIE.NIS.SDK.Smartcard
         }
         public void CardInserted(object sender, CardEventArgs ce)
         {
-            if (OnSmartcardRead != null)
-                OnSmartcardRead(ce.ReaderName);
+            if (OnSmartcardInserted != null)
+                OnSmartcardInserted(ce.ReaderName);
         }
         public void CardRemoved(object sender, CardEventArgs ce)
         {
-
+            if (OnSmartcardRemoved != null)
+                OnSmartcardRemoved(ce.ReaderName);
         }
         /// <summary>
         /// Throw card exception

@@ -1,38 +1,49 @@
 ﻿
 namespace CIE.NIS.SDK
-{    
-    using System;    
-    using Extensions;    
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using Interfaces;
     using Smartcard;
-    
 
-    public class Processor : IProcessor, IDisposable
+
+    public class Processor : IProcessor, ISmartcardEventHandlers, IDisposable
     {       
         private readonly SmartcardFactory _smartcardFactory;
-        private string[] _smartcardReaders;
-        public event EventHandler<string> OnReadComplete;
+        private string[] _smartcardReaders;        
         public event EventHandler<Exception> OnException;
+        public event EventHandler<List<string>> OnListenerStarted;
+        public event EventHandler<List<string>> OnListenerStopped;
+        public event EventHandler<string> OnSmartcardInserted;
+        public event EventHandler<string> OnSmartcardRemoved;
+        public event EventHandler<string> OnDataRead;
 
         private bool _disposed = false;
-        private bool _stopped = false;
+        private bool _stopped = true;
 
         public Processor() {            
             //Smartcard initialization
             _smartcardFactory = new SmartcardFactory();            
-            _smartcardReaders = _smartcardFactory.GetSmartcardReaders();
-            if (_smartcardReaders.Length == 0)
-                OnException(this, new NullReferenceException("No smartcard reader plugged"));                        
+            _smartcardReaders = _smartcardFactory.GetSmartcardReaders();                                   
         }
 
         public void Start()
         {
             try
-            {                
-                _smartcardFactory.OnSmartcardRead += OnSmartcardRead;
-                _smartcardFactory.StartListeners(_smartcardReaders);
+            {
+                if(_stopped)
+                {
+                    if (_smartcardReaders.Length == 0)
+                        throw new NullReferenceException("No smartcard reader plugged");
 
-                _stopped = false;
+                    _smartcardFactory.OnSmartcardInserted += SmartcardInserted;
+                    _smartcardFactory.OnSmartcardRemoved += SmartcardRemoved;
+                    _smartcardFactory.StartListeners(_smartcardReaders);
+                    if (OnListenerStarted != null)
+                        OnListenerStarted(this, _smartcardReaders.ToList());
+                    _stopped = false;
+                }                
             }
             catch (Exception ex)
             {
@@ -43,30 +54,53 @@ namespace CIE.NIS.SDK
         {
             try
             {
-                _smartcardFactory.OnSmartcardRead -= OnSmartcardRead;
-                _smartcardFactory.StopListeners();
-
-                _stopped = true;
+                if(!_stopped)
+                {
+                    _smartcardFactory.OnSmartcardInserted -= SmartcardInserted;
+                    _smartcardFactory.OnSmartcardRemoved -= SmartcardRemoved;
+                    _smartcardFactory.StopListeners();
+                    _smartcardFactory.Dispose();
+                    if (OnListenerStopped != null)
+                        OnListenerStopped(this, _smartcardReaders.ToList());
+                    _stopped = true;
+                }                
             }
             catch (Exception ex)
             {
                 OnException(this, ex);
             }
         }
-        private void OnSmartcardRead(string reader) {
+        private void SmartcardInserted(string reader) {
             {
                 try
                 {
+                    if(OnSmartcardInserted != null)
+                        OnSmartcardInserted(this, reader);
                     //Read card data from reader
                     string nis = _smartcardFactory.ReadIdentifier(reader);
-                    OnReadComplete(this, nis);                    
+                    OnDataRead(this, nis);                    
                 }
                 catch (Exception ex)
                 {
                     OnException(this, ex);
                 }
             }
-        }       
+        }
+
+        private void SmartcardRemoved(string reader)
+        {
+            {
+                try
+                {
+                    if(OnSmartcardRemoved != null)
+                        OnSmartcardRemoved(this, reader);                                        
+                }
+                catch (Exception ex)
+                {
+                    OnException(this, ex);
+                }
+            }
+        }
         ~Processor()
         {
             Dispose(false);
@@ -85,10 +119,7 @@ namespace CIE.NIS.SDK
                     if (disposing)
                     {
                         //Cleanup managed objects                     
-                        if (!_stopped)
-                            this.Stop();
-
-                        _smartcardFactory.Dispose();                        
+                        this.Stop();                                               
                     }
                     // Cleanup unmanaged objects
                 }
