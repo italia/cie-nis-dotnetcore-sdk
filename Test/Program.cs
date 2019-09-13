@@ -7,15 +7,32 @@ namespace Test
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Identificazione del documento tramite il Numero Identificativo per i Servizi\n");            
+            Console.WriteLine("Example for reading and validate the NIS code from an Italian Electronic Identity Card (CIE)\n");            
             using (var pr = new Processor())
             {
+                pr.OnException += OnException;
+                pr.OnReadComplete += OnReadComplete;
                 pr.Start();
-                Console.WriteLine("Appoggia la cie sul lettore NFC per iniziare il controllo del nis.");
-                Console.WriteLine("Premi un tasto per terminare l'applicazione");
+                Console.WriteLine("Put your CIE on smartcard reader to start.");
+                Console.WriteLine("Press any key to end program");
                 Console.ReadLine();
                 pr.Stop();
             }               
         }
+
+        public static void OnException(object sender, Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+        public static void OnReadComplete(object sender, string e)
+        {
+            if (e != null)
+                Console.WriteLine($"NIS {e} verified");
+            else
+                Console.WriteLine("NIS is not valid");            
+        }
     }
+
+
 }

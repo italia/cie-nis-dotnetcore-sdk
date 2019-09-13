@@ -10,8 +10,10 @@ namespace CIE.NIS.SDK
     public class Processor : IProcessor, IDisposable
     {       
         private readonly SmartcardFactory _smartcardFactory;
-        private string[] _smartcardReaders;        
-        
+        private string[] _smartcardReaders;
+        public event EventHandler<string> OnReadComplete;
+        public event EventHandler<Exception> OnException;
+
         private bool _disposed = false;
         private bool _stopped = false;
 
@@ -19,13 +21,8 @@ namespace CIE.NIS.SDK
             //Smartcard initialization
             _smartcardFactory = new SmartcardFactory();            
             _smartcardReaders = _smartcardFactory.GetSmartcardReaders();
-            if (_smartcardReaders.Length != 0)
-            {
-                foreach (var smartcardReader in _smartcardReaders)
-                {
-                    Console.WriteLine("Lettore {0} in ascolto", smartcardReader);
-                }
-            }            
+            if (_smartcardReaders.Length == 0)
+                OnException(this, new NullReferenceException("No smartcard reader plugged"));                        
         }
 
         public void Start()
@@ -39,8 +36,7 @@ namespace CIE.NIS.SDK
             }
             catch (Exception ex)
             {
-                //Log error
-                Console.WriteLine(ex.ToUniqueMessage());
+                OnException(this, ex);
             }
         }
         public void Stop()
@@ -54,27 +50,20 @@ namespace CIE.NIS.SDK
             }
             catch (Exception ex)
             {
-                //Log error
-                Console.WriteLine(ex.ToUniqueMessage());
+                OnException(this, ex);
             }
         }
-        public void OnSmartcardRead(string reader) {
+        private void OnSmartcardRead(string reader) {
             {
                 try
                 {
                     //Read card data from reader
                     string nis = _smartcardFactory.ReadIdentifier(reader);
-                    if(nis != null)
-                    {
-                        //Do some operation with valid nis
-                        Console.WriteLine("Il tuo nis ({0}) è stato verificato", nis);                       
-                    }
-                    else
-                        Console.WriteLine("Verifica del nis fallita");
+                    OnReadComplete(this, nis);                    
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.ToUniqueMessage());
+                    OnException(this, ex);
                 }
             }
         }       
@@ -107,8 +96,7 @@ namespace CIE.NIS.SDK
             }
             catch (Exception ex)
             {
-                //Log error
-                Console.WriteLine(ex.ToUniqueMessage());
+                OnException(this, ex);
             }
         }
     }
