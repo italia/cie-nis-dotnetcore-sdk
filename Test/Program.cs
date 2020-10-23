@@ -9,7 +9,7 @@ namespace Test
         static void Main(string[] args)
         {
             Console.WriteLine("Example for reading and validate the NIS code from an Italian Electronic Identity Card (CIE)\n");            
-            using (var pr = new Processor())
+            using (var pr = new SmartcardProcessor())
             {
                 pr.OnException += ThrowException;
                 pr.OnDataRead += ShowResult;

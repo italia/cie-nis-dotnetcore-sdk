@@ -6,9 +6,7 @@ namespace CIE.NIS.SDK
     using System.Linq;
     using Interfaces;
     using Smartcard;
-
-
-    public class Processor : IProcessor, ISmartcardEventHandlers, IDisposable
+    public class SmartcardProcessor : ISmartcardEventHandlers, IDisposable
     {       
         private readonly SmartcardFactory _smartcardFactory;
         private string[] _smartcardReaders;        
@@ -22,7 +20,7 @@ namespace CIE.NIS.SDK
         private bool _disposed = false;
         private bool _stopped = true;
 
-        public Processor() {            
+        public SmartcardProcessor() {            
             //Smartcard initialization
             _smartcardFactory = new SmartcardFactory();            
             _smartcardReaders = _smartcardFactory.GetSmartcardReaders();                                   
@@ -86,7 +84,6 @@ namespace CIE.NIS.SDK
                 }
             }
         }
-
         private void SmartcardRemoved(string reader)
         {
             {
@@ -101,7 +98,7 @@ namespace CIE.NIS.SDK
                 }
             }
         }
-        ~Processor()
+        ~SmartcardProcessor()
         {
             Dispose(false);
         }

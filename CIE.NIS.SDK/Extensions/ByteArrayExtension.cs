@@ -13,6 +13,33 @@ namespace CIE.NIS.SDK.Extensions
             Buffer.BlockCopy(source, offset, rv, 0, length);
             return rv;
         }
+        public static byte[] Left(this byte[] source, int num)
+        {
+            if (num > source.Length)
+                return source;
+            byte[] data = new byte[num];
+            Array.Copy(source, data, num);
+            return data;
+        }
+        public static byte[] Right(this byte[] source, int num)
+        {
+            if (num > source.Length)
+                return source;
+            byte[] data = new byte[num];
+            Array.Copy(source, source.Length - num, data, 0, num);
+            return data;
+        }
+        public static byte[] Xor(this byte[] source, byte[] mask)
+        {
+            if (mask.Length != source.Length)
+                throw new Exception("Dimensione array non corretta");
+            var xor = new byte[source.Length];
+            for (int i = 0; i < source.Length; i++)
+            {
+                xor[i] = (byte)(source[i] ^ mask[i]);
+            }
+            return xor;
+        }
         public static byte[] Reverse(this byte[] source)
         {
             var ba = new Byte[source.Length];            
@@ -25,12 +52,15 @@ namespace CIE.NIS.SDK.Extensions
         }                               
         public static byte[] Combine(this byte[] source, byte[] data)
         {
+            if (source == null)
+                return data;
+
             return ByteArrayOperations.Combine(source, data);
         }
         public static byte[] Combine(this byte[] source, byte data)
         {
             return Combine(source, new byte[] { data });
-        }
+        }        
         public static byte[] Fill(this byte[] source, int offset, int size, byte content)
         {            
             //Create filler array of byte
@@ -53,6 +83,14 @@ namespace CIE.NIS.SDK.Extensions
                 throw new NotImplementedException("Not supported yet");
             }
         }
+        public static byte[] PadInt(this byte[] source, ulong value, int size)
+        {
+            var sz = BitConverter.GetBytes(value).Reverse().Right(size);
+            if (sz.Length < size)
+                return source.Fill(0, size - sz.Length, 0);
+            else
+                return sz;
+        }        
         public static string ToHexString(this byte[] source)
         {
             StringBuilder hex = new StringBuilder(source.Length * 2);
@@ -69,9 +107,9 @@ namespace CIE.NIS.SDK.Extensions
                 sb.Append(source[i].ToString("X02") + " ");
             return sb.ToString();
         }
-        public static byte[] ToMessageDigest(this byte[] source, string hashAlgo)
+        public static byte[] ToMessageDigest(this byte[] source, string algo)
         {
-            return HashAlgorithm.Create(hashAlgo).ComputeHash(source);
+            return HashAlgorithm.Create(algo).ComputeHash(source);
         }
     }
 }

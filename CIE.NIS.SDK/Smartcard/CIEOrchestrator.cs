@@ -167,7 +167,7 @@ namespace CIE.NIS.SDK.Smartcard
                 {
                     var modulus = pubKeyAsn1.Child(0, 0x02).Data; // modulus. 02 Verify that result is a INTEGER
                     var exp = pubKeyAsn1.Child(1, 0x02).Data; // exp. 02 Verify that result is a INTEGER
-                    if (!rsa.PureVerifyData(challenge, signedData, modulus, exp))
+                    if (!rsa.PureVerify(challenge, signedData, modulus, exp))
                         throw new Exception("Unable to verify challenge");
                 }
 

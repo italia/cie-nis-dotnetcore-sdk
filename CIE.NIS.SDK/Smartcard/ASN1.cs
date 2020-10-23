@@ -71,8 +71,7 @@ namespace CIE.NIS.SDK.Smartcard
             string val = "";
             if (tag.Data != null)
             {
-                val += " Len " + tag.Data.Length.ToString("X2") + ":" + tag.ToReadableString();
-                //val += " Len " + tag.Data.Length.ToString("X2") + ":" + new ByteArray(tag.Data).Sub(0, Math.Min(30, tag.Data.Length));
+                val += " Len " + tag.Data.Length.ToString("X2") + ":" + tag.ToReadableString();                
             }
             return val;
         }

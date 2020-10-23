@@ -3,14 +3,26 @@ namespace CIE.NIS.SDK.Extensions
 {
     using System;
     using System.Numerics;
-    using System.Security.Cryptography;
+    using System.Security.Cryptography;        
     public static class RSAExtension
     {
         private static byte[] SHA1Algo = new byte[] { 0x30, 0x21, 0x30, 0x09, 0x06, 0x05, 0x2b, 0x0e, 0x03, 0x02, 0x1a, 0x05, 0x00, 0x04, 0x14 };
         private static byte[] SHA256Algo = new byte[] { 0x30, 0x31, 0x30, 0x0D, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20 };
-
+                
         public static byte[] PureRSA(this RSA rsa, byte[] data, byte[] modulus, byte[] exp)
         {
+            var octS = RawRSA(rsa, data, modulus, exp);            
+            return octS.RemoveRsaPadding();            
+        }
+        public static bool PureVerify(this RSA rsa, byte[] data, byte[]signature, byte[] modulus, byte[] exp)
+        {
+            //Perform RSA operation
+            var result = PureRSA(rsa, signature, modulus, exp);
+            
+            //Compare result and original data
+            return result.ToHexString() == data.ToHexString();
+        }
+        public static byte[] RawRSA(this RSA rsa, byte[] data, byte[] modulus, byte[] exp) {
             //Normalize data
             int i = 0;
             for (i = 0; i < modulus.Length; i++)
@@ -61,22 +73,10 @@ namespace CIE.NIS.SDK.Extensions
                     break;
             if (i != 0)
                 octS = octS.SubArray(i, octS.Length - i);
-
+            
             if (octS.Length < modulusLength)
                 octS = octS.Fill(1, modulusLength - octS.Length, 0);
-
-            //Remove padding from result to get original data encrypted
-            var result = octS.RemoveRsaPadding();
-
-            return result;
-        }
-        public static bool PureVerifyData(this RSA rsa, byte[] data, byte[]signature, byte[] modulus, byte[] exp)
-        {
-            //Perform RSA operation
-            var result = PureRSA(rsa, signature, modulus, exp);
-            
-            //Compare result and original data
-            return result.ToHexString() == data.ToHexString();
+            return octS;
         }
         public static byte[] RemoveRsaPadding(this byte[] source)
         {
