@@ -31,6 +31,8 @@ namespace CIE.NIS.SDK.Smartcard
                 CommandApdu apdu;
                 ResponseApdu rapdu;
                 byte[] receiveBuffer;
+                /* BEGIN TRANSACTION */
+                sc = _peripheral.BeginTransaction();
 
                 /* 00 A4 - 04 0C 0D - A0 00 00 00 30 80 00 00 00 09 81 60 01 Selezione Applet CIE  */
                 receiveBuffer = new byte[2];
@@ -85,14 +87,14 @@ namespace CIE.NIS.SDK.Smartcard
                 var NIS_ID = rapdu.GetData();
 
                 /* 00 B0 - 85 00 00 Lettura chiave pubblica - 1*/
-                receiveBuffer = new byte[233];
+                receiveBuffer = new byte[1024];
                 apdu = new CommandApdu(IsoCase.Case2Short, _peripheral.ActiveProtocol)
                 {
                     CLA = 0x00,
                     INS = 0XB0,
                     P1 = 0x85,
                     P2 = 0x00,
-                    Le = 0x00
+                    Le = 0xE7
                 };
                 sc = _peripheral.Transmit(
                         SCardPCI.GetPci(_peripheral.ActiveProtocol),
@@ -103,7 +105,7 @@ namespace CIE.NIS.SDK.Smartcard
                 var pubkey1 = rapdu.GetData();
 
                 /* 00 B0 - 85 E7 00 - Lettura chiave pubblica - 2 */
-                receiveBuffer = new byte[233];
+                receiveBuffer = new byte[1024];
                 apdu = new CommandApdu(IsoCase.Case2Short, _peripheral.ActiveProtocol)
                 {
                     CLA = 0x00,
@@ -180,14 +182,14 @@ namespace CIE.NIS.SDK.Smartcard
                 while (!sodLoaded)
                 {
                     var hexS = idx.ToString("X4");
-                    receiveBuffer = new byte[233];
+                    receiveBuffer = new byte[1024];
                     apdu = new CommandApdu(IsoCase.Case4Short, _peripheral.ActiveProtocol)
                     {
                         CLA = 0x00,
                         INS = 0xB1,
                         P1 = 0x00,
                         P2 = 0x06,
-                        Le = 0x00,
+                        Le = 0xE7,
                         Data = new byte[] {
                             0x54,
                             0x02,
@@ -212,7 +214,7 @@ namespace CIE.NIS.SDK.Smartcard
                 }
                 //Create IAS ASN1 object
                 var ias = IASSod.Create(sodIASData);
-                var isValid = ias.Verify(NIS_ID);                
+                var isValid = ias.Verify(NIS_ID);
 
                 //Verify integrity of data
                 if (isValid)
